@@ -1,0 +1,7 @@
+# dsh-node-jump bundle patch：向 web profile 插入“对话节点快捷跳转”插件行。
+# 安装方式（在插件父目录执行）：
+#   dsh plugin --profile web add ./dsh-node-jump
+# 之后由 profile 的 dsh.profile.bundles 自动加载本层。
+- insert:
+    - id: dsh-node-jump
+      name: dsh-node-jump

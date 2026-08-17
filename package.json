@@ -1,0 +1,32 @@
+{
+  "name": "dsh-node-jump",
+  "version": "0.2.0",
+  "description": "让 dsh Web GUI 在会话内支持对话节点快捷跳转：会话头部「⤵」按钮弹出节点目录面板（搜索 + 类型筛选 + 摘要列表），点击条目平滑定位到对应节点并高亮。支持详细/简洁两种显示模式，可在 设置 → General 常规页 切换（简洁模式只展示用户问题与回合回复的对话骨架）。纯浏览器端插件，无需构建。",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "slots"
+      ],
+      "platform": "web"
+    }
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "react": "^18.2.0"
+  },
+  "license": "MIT"
+}
