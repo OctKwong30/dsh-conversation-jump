@@ -23,13 +23,22 @@
 
 ## 安装
 
-在插件父目录执行：
+进入插件目录后执行（推荐，不依赖目录名——`dsh plugin` 会把 `.` 以当前目录为锚点解析成插件包绝对路径）：
 
 ```sh
-dsh plugin --profile web add ./dsh-node-jump
+cd dsh-node-jump        # 本地开发目录，或 clone 仓库后的目录名
+dsh plugin --profile web add .
 ```
 
-该命令会把本包加入 `~/.dsh/profiles/web/package.json` 的依赖，并因声明了 `dsh.bundle` 自动加入 `dsh.profile.bundles` 层栈。之后重启 web 服务（或重新 `dsh web`）即生效，所有会话头部出现「⤵」按钮。
+也可以在任何位置用路径指定插件目录（相对路径以执行命令时所在的目录为锚点）：
+
+```sh
+dsh plugin --profile web add ./dsh-node-jump   # 在插件父目录执行
+```
+
+该命令会把本包写入 `~/.dsh/profiles/web/package.json` 的依赖（形式为 `dsh-node-jump: link:<插件绝对路径>`，本地 link 依赖，改动即时生效），并因声明了 `dsh.bundle` 自动加入 `dsh.profile.bundles` 层栈。之后**重启 web 服务**（或重新 `dsh web`）即生效，所有会话头部出现「⤵」按钮。
+
+> 注意：`dsh plugin add/remove` 会执行 reconcile，自动把所有声明 `dsh.bundle` 的依赖并入 bundles 层栈——改完插件配置后请重启服务并确认启动日志无 `duplicate loader entry` 报错（本插件不在任何聚合包内，正常无重复风险）。
 
 ## 卸载
 
