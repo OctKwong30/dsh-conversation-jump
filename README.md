@@ -19,7 +19,7 @@
 
 - 数据来自 slot 标准 props 的 `useSession`：`chat.order`（节点顺序）+ `chat.nodes`（节点存储），只列 `visibility === 'visible'` 的节点
 - 跳转复用产品自带的 `[data-chat-anchor-key]` DOM 锚点契约（与 ChatView 自身滚动恢复同款），手动定位最近的滚动容器并**瞬时滚动**——避免被运行中会话的「跟随底部」逻辑覆盖平滑滚动
-- 历史分页时（`hasMore`）面板只列当前已加载窗口的节点，底部有提示
+- 历史分页时（`hasMore`）面板只列当前已加载窗口的节点，底部有可点击的「加载更早」按钮——点击后拉一页更早历史进当前窗口（经 `sessions.binding(sessionId).session.loadOlder()`），列表自动刷新、可连续加载，不干扰聊天区滚动
 
 ## 安装
 
@@ -49,4 +49,4 @@ dsh plugin --profile web remove dsh-node-jump
 ## 说明
 
 - 本插件与动态 Cordis 插件的区别：动态插件（`ndjp-1`）仅存在于单个会话进程，页面刷新后需重新激活；本包持久化于 web profile，刷新 / 重启后自动加载，所有会话可用。
-- 已知限制：历史分页（`hasMore`）时只列已加载窗口；面板是浮动层，会临时覆盖右侧文件面板区域（跳转后自动关闭）。
+- 已知限制：面板是浮动层，会临时覆盖右侧文件面板区域（跳转后自动关闭）；窗口加载完整后（`hasMore` 为 false）面板不再显示「加载更早」按钮。
