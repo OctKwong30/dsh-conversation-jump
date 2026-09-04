@@ -31,6 +31,26 @@
 
 ## 安装
 
+### npx 一键安装（发布后推荐）
+
+```sh
+npx dsh-node-jump                 # 最新版，装进 web profile
+npx dsh-node-jump@0.5.0           # 指定版本
+npx dsh-node-jump --spec ^0.5.0   # 指定 semver 范围
+npx dsh-node-jump --profile web   # 指定 profile（缺省 web）
+```
+
+安装器（`bin/install.mjs`）自动完成：
+
+1. 定位 `~/.dsh/profiles/<profile>`（`DSH_HOME` 环境变量可覆盖）；
+2. 检测 pnpm 供应链配置（`minimumReleaseAge`）并幂等放行本插件；
+3. 转发官方 CLI：`dsh plugin --profile <p> add dsh-node-jump@<spec>`（PATH 上无 dsh 时自动回退 `npx -y --package @deepseek-ai/dsh dsh`）——安装与 `dsh.profile.bundles` 注册全部由官方通道完成；
+4. 后验 bundle 注册结果，提示重启。
+
+> 本地 clone 运行（`node bin/install.mjs` 或 `npx .`）时自动切换 **link 模式**（以当前目录为锚点安装，改动即时生效）；`--link` 可强制。`--dry-run` 只打印不执行。
+
+### 本地 / 源码安装
+
 进入插件目录后执行（推荐，不依赖目录名——`dsh plugin` 会把 `.` 以当前目录为锚点解析成插件包绝对路径）：
 
 ```sh
@@ -47,6 +67,14 @@ dsh plugin --profile web add ./dsh-node-jump   # 在插件父目录执行
 该命令会把本包写入 `~/.dsh/profiles/web/package.json` 的依赖（形式为 `dsh-node-jump: link:<插件绝对路径>`，本地 link 依赖，改动即时生效），并因声明了 `dsh.bundle` 自动加入 `dsh.profile.bundles` 层栈。之后**重启 web 服务**（或重新 `dsh web`）即生效，会话列左缘出现「⤵」悬浮钮。
 
 > 注意：`dsh plugin add/remove` 会执行 reconcile，自动把所有声明 `dsh.bundle` 的依赖并入 bundles 层栈——改完插件配置后请重启服务并确认启动日志无 `duplicate loader entry` 报错（本插件不在任何聚合包内，正常无重复风险）。
+
+### 发布（维护者）
+
+```sh
+npm login                 # 需要有 npm 账号
+npm publish               # tarball 已含 bin/ lib/ cordis.patch.yml README
+# 发布后即可 npx dsh-node-jump 一键安装
+```
 
 ## 卸载
 
@@ -65,6 +93,7 @@ dsh plugin --profile web remove dsh-node-jump
 
 ## 更新日志
 
+- **0.5.0**：新增 npx 一键安装支持——`bin/install.mjs` 安装器（`bin` 入口）自动检测安装形态（本地 checkout → link 模式 / npx registry 副本 → registry 模式），转发官方 `dsh plugin add` 通道完成安装与 bundle 注册；`minimumReleaseAge` 供应链配置幂等放行；支持 `--profile` / `--spec` / `--link` / `--dry-run`
 - **0.4.1**：修复窄窗口（侧栏响应式收起、会话列贴视口左缘）时按钮误隐藏的问题——left=0 为合法锚线，旧版误判跳过导致测量失败；锚点行数变化（首条消息 / 标签页切换）经 MutationObserver 兜底重测并重挂 ResizeObserver
 - **0.4.0**：悬浮钮与面板从会话头部 / 视口右上迁移至会话列左缘垂直居中（`[data-chat-anchor-key]` 锚点定位，ResizeObserver 跟随左侧栏宽度变化）；设置页详细/简洁模式增加悬浮提示与解释文案；Esc 关闭面板
 - **0.3.0**：面板内「点击加载更早」拉取历史分页（`sessions.loadOlder`）
