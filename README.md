@@ -71,10 +71,17 @@ dsh plugin --profile web add ./dsh-node-jump   # 在插件父目录执行
 ### 发布（维护者）
 
 ```sh
-npm login                 # 需要有 npm 账号
-npm publish               # tarball 已含 bin/ lib/ cordis.patch.yml README
+# 没有账号？到 https://www.npmjs.com/signup 免费注册（网页注册，需验证邮箱）
+npm login --registry https://registry.npmjs.org   # 登录官方源
+npm publish                                        # tarball 已含 bin/ lib/ cordis.patch.yml README
 # 发布后即可 npx dsh-node-jump 一键安装
 ```
+
+> **国内镜像用户注意**：若 `~/.npmrc` 把默认 registry 指向 npmmirror 等只读镜像，直接
+> `npm login` 会报 `Public registration is not allowed`（镜像不支持注册/发布）——登录必须
+> 显式带 `--registry https://registry.npmjs.org`。本包已在 `package.json` 声明
+> `publishConfig.registry`，`npm publish` 永远发到官方源，不受镜像配置影响；安装端
+> （installer → `dsh plugin add` → pnpm）在镜像源未同步新包（404）时会自动改用官方源重试。
 
 ## 卸载
 

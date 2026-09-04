@@ -114,16 +114,28 @@ function resolveCli() {
 }
 
 // ---------- 执行安装（官方 CLI 通道） ----------
+// dsh CLI 是 pnpm forwarder：`--profile <p>` 之后的参数原样转发给 pnpm，
+// 因此可追加 pnpm 参数（如 --registry）。
 const cli = resolveCli();
-const cliArgs = [...cli.base, 'plugin', '--profile', opts.profile, 'add', spec];
-const cliDisplay = `${cli.cmd} ${cliArgs.join(' ')}`;
-say(`执行：${cliDisplay}`);
+function runInstall(extraArgs) {
+  const args = [...cli.base, 'plugin', '--profile', opts.profile, 'add', spec, ...extraArgs];
+  say(`执行：${cli.cmd} ${args.join(' ')}`);
+  return spawnSync(cli.cmd, args, { stdio: 'inherit', shell: process.platform === 'win32' });
+}
 if (opts.dryRun) {
   say(`[dry-run] 校验 ${profilePkg} 的 dsh.profile.bundles 包含 ${PKG}`);
+  say('[dry-run] registry 模式下若默认源安装失败，自动改用官方源 https://registry.npmjs.org 重试');
   say('[dry-run] 完成。正式运行时按上述步骤执行。');
   process.exit(0);
 }
-const run = spawnSync(cli.cmd, cliArgs, { stdio: 'inherit', shell: process.platform === 'win32' });
+let run = runInstall([]);
+if (run.status !== 0 && !useLink) {
+  // 常见场景：默认 registry 为只读镜像（如 npmmirror）且新发布的包尚未
+  // 同步到镜像 —— E404 / ENOTFOUND。改用官方源重试一次。
+  warn('默认 registry 安装失败——若上方输出为 404 / not found，多半是镜像源尚未同步新发布的包。');
+  warn('改用官方源 https://registry.npmjs.org 重试...');
+  run = runInstall(['--registry=https://registry.npmjs.org']);
+}
 if (run.status !== 0) {
   warn('dsh plugin add 失败。常见原因：');
   warn('  - 网络/registry 不可达，或该版本尚未发布（npm view dsh-node-jump versions 确认）；');
